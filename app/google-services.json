@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "611621087548",
+    "project_id": "reofood-1c5c9",
+    "storage_bucket": "reofood-1c5c9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:611621087548:android:ee019cd3418374fa74d639",
+        "android_client_info": {
+          "package_name": "com.hearts.customer"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "611621087548-qbpb6d3vpm3sanjlc254p0alrvs349ig.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hearts.customer",
+            "certificate_hash": "6f984fd3537b6734f71727ecb5328c0fdc17b8ef"
+          }
+        },
+        {
+          "client_id": "611621087548-ir9s6p0hr013gnni3l7rti0ne9empr6h.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDznhdTWGuNEN-4cFlX5lb5rLrWtikROV0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "611621087548-ir9s6p0hr013gnni3l7rti0ne9empr6h.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

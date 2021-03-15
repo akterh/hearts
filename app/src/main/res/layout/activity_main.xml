@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+   <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+       android:id="@+id/swipe"
+       android:layout_width="match_parent"
+       android:layout_height="match_parent">
+      <WebView
+          android:id="@+id/webView"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"/>
+   </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+
+   <ProgressBar
+      android:id="@+id/progressBar"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+      android:layout_centerInParent="true"/>
+
+   <LinearLayout
+       android:visibility="invisible"
+       android:id="@+id/noInternet"
+       android:layout_width="match_parent"
+       android:layout_height="match_parent"
+      android:orientation="vertical"
+      android:gravity="center">
+      <ImageView
+          android:id="@+id/noInternetImg"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:src="@drawable/no_internet"/>
+      <TextView
+          android:id="@+id/btn_load"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="@string/Relod"
+          android:textSize="18sp"
+          android:textColor="@color/reoColor"
+          />
+
+
+   </LinearLayout>
+
+
+
+</RelativeLayout>

@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Hearts</string>
+    <string name="spalshDesc">splash screen image</string>
+    <string name="Relod"> No Internet</string>
+</resources>
