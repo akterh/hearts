@@ -1,21 +1,30 @@
 package com.hearts.customer;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.Manifest;
+
+import android.app.AlertDialog;
 import android.content.Context;
+;
+import android.content.DialogInterface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+
+import android.os.Build;
 import android.os.Bundle;
+
 import android.view.View;
+import android.webkit.GeolocationPermissions;
 import android.webkit.WebChromeClient;
+
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.Toast;
-
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
@@ -25,6 +34,9 @@ public class MainActivity extends AppCompatActivity {
     private ProgressBar progress;
     private LinearLayout noInternet;
     private final int REQUEST_LOCATION_PERMISSION = 1;
+    private Context context;
+
+    @RequiresApi(api = Build.VERSION_CODES.P)
 
 
 
@@ -37,33 +49,42 @@ public class MainActivity extends AppCompatActivity {
         progress= findViewById(R.id.progressBar);
         noInternet = findViewById(R.id.noInternet);
 
+
+
+
+
+
+        if (Build.VERSION.SDK_INT < 18) {
+            //speed webview
+            webView.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
+        }
+
+
+
+        webView.getSettings().setGeolocationEnabled(true);
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setAllowFileAccess(true);
         webView.getSettings().getAllowFileAccessFromFileURLs();
         webView.getSettings().setAllowContentAccess(true);
         webView.getSettings().setDomStorageEnabled(true);
-        webView.setWebChromeClient(new WebChromeClient());
-        webView.setWebViewClient(new myWebViewClient()
+        webView.setWebViewClient(new myWebViewClient());
+        webView.setWebChromeClient(new WebChromeClient()
 
-                                 {
-                                     @Override
-                                     public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                                         return true;
 
-                                     }
-                                 }
-
+                                   {
+                                       public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback callback) {
+                                           callback.invoke(origin, true, false);
+                                       }
+                                   }
 
         );
 
 
 
 
+
         checkInternet();
         requestLocationPermission();
-
-
-
 
 
 
@@ -83,7 +104,18 @@ public class MainActivity extends AppCompatActivity {
         if (webView.canGoBack()) {
             webView.goBack();
         }else {
-            super.onBackPressed();
+            new AlertDialog.Builder(this)
+                    .setTitle("Really Exit?")
+                    .setMessage("Are you sure you want to exit?")
+                    .setNegativeButton(android.R.string.no, null)
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            MainActivity.super.onBackPressed();
+                            //this mainactivity must be replaced with your activity
+                        }
+
+                    }).create().show();
         }
     }
 
@@ -105,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
         if (wifi.isConnected()|| mobile.isConnected()){
             webView.setVisibility(View.VISIBLE);
             noInternet.setVisibility(View.INVISIBLE);
-            webView.loadUrl("https://hearts.com.bd");
+            webView.loadUrl("https://reofood.com.bd");
         }else{
             webView.setVisibility(View.INVISIBLE);
             noInternet.setVisibility(View.VISIBLE);
@@ -127,12 +159,15 @@ public class MainActivity extends AppCompatActivity {
     public void requestLocationPermission() {
         String[] perms = {Manifest.permission.ACCESS_FINE_LOCATION};
         if(EasyPermissions.hasPermissions(this, perms)) {
-            Toast.makeText(this, "Permission already granted", Toast.LENGTH_SHORT).show();
+            checkInternet();
         }
         else {
             EasyPermissions.requestPermissions(this, "Please grant the location permission", REQUEST_LOCATION_PERMISSION, perms);
         }
     }
+
+
+
 
 
 }

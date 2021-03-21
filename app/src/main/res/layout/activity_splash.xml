@@ -9,6 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:src="@drawable/vert_loading"
+        android:layout_marginLeft="16dp"
         android:contentDescription="@string/spalshDesc"
 
         />
