@@ -137,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
         if (wifi.isConnected()|| mobile.isConnected()){
             webView.setVisibility(View.VISIBLE);
             noInternet.setVisibility(View.INVISIBLE);
-            webView.loadUrl("https://reofood.com.bd");
+            webView.loadUrl("https://hearts.com.bd");
         }else{
             webView.setVisibility(View.INVISIBLE);
             noInternet.setVisibility(View.VISIBLE);
