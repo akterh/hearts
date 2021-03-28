@@ -1,4 +1,5 @@
 package com.hearts.customer;
+import com.mesibo.api.Mesibo;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
@@ -8,18 +9,21 @@ import android.Manifest;
 
 import android.app.AlertDialog;
 import android.content.Context;
-;
+
 import android.content.DialogInterface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
+import android.util.Log;
 import android.view.View;
 import android.webkit.GeolocationPermissions;
 import android.webkit.WebChromeClient;
 
+import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -35,6 +39,8 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout noInternet;
     private final int REQUEST_LOCATION_PERMISSION = 1;
     private Context context;
+    private static final String TAG = "SingleDomain";
+    String url ="https://hearts.com.bd";
 
     @RequiresApi(api = Build.VERSION_CODES.P)
 
@@ -67,7 +73,26 @@ public class MainActivity extends AppCompatActivity {
         webView.getSettings().getAllowFileAccessFromFileURLs();
         webView.getSettings().setAllowContentAccess(true);
         webView.getSettings().setDomStorageEnabled(true);
-        webView.setWebViewClient(new myWebViewClient());
+        webView.setWebViewClient(new myWebViewClient()
+                                 {
+                                     @Override
+                                     public boolean shouldOverrideUrlLoading(WebView webView, String url) {
+                                         Uri targetUrl = Uri.parse(url);
+                                         if (!targetUrl.equals(url)) {
+                                             // The WebView is trying to load a URL outside the specified domain,
+                                             // override and ignore this request for security.
+                                             Log.d(TAG, "Blocking request to " + url);
+
+                                             // Reload home page
+                                             webView.loadUrl(url);
+                                             return true;
+                                         }
+
+                                         return false;
+                                     }
+                                 }
+
+        );
         webView.setWebChromeClient(new WebChromeClient()
 
 
@@ -102,8 +127,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         if (webView.canGoBack()) {
+
+
             webView.goBack();
-        }else {
+        }
+        else {
             new AlertDialog.Builder(this)
                     .setTitle("Really Exit?")
                     .setMessage("Are you sure you want to exit?")
@@ -117,6 +145,7 @@ public class MainActivity extends AppCompatActivity {
 
                     }).create().show();
         }
+
     }
 
     private class myWebViewClient extends WebViewClient {
@@ -137,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
         if (wifi.isConnected()|| mobile.isConnected()){
             webView.setVisibility(View.VISIBLE);
             noInternet.setVisibility(View.INVISIBLE);
-            webView.loadUrl("https://hearts.com.bd");
+            webView.loadUrl("url");
         }else{
             webView.setVisibility(View.INVISIBLE);
             noInternet.setVisibility(View.VISIBLE);
