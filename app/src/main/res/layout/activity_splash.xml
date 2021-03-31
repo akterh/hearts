@@ -3,13 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".SplashActivity">
+    tools:context=".SplashActivity"
+    android:background="@color/hearts_back">
     <ImageView
         android:id="@+id/splashImage"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@drawable/vert_loading"
-        android:layout_marginLeft="16dp"
+        android:src="@drawable/splash"
         android:contentDescription="@string/spalshDesc"
 
         />

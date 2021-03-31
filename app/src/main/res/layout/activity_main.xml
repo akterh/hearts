@@ -47,6 +47,16 @@
 
    </LinearLayout>
 
+   <ImageView
+       android:id="@+id/tawk_img"
+       android:layout_width="100dp"
+       android:layout_height="100dp"
+      android:layout_alignParentBottom="true"
+      android:layout_alignParentEnd="true"
+      android:src="@drawable/tawk_sitelogo"
+      android:layout_marginBottom="32dp"
+      android:layout_marginRight="12dp"/>
+
 
 
 </RelativeLayout>

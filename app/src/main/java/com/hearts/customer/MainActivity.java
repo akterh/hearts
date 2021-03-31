@@ -11,6 +11,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
@@ -27,12 +28,14 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
 public class MainActivity extends AppCompatActivity {
+    private ImageView tawkImg;
     private WebView webView;
     private SwipeRefreshLayout swipe;
     private ProgressBar progress;
@@ -54,6 +57,31 @@ public class MainActivity extends AppCompatActivity {
         swipe = findViewById(R.id.swipe);
         progress= findViewById(R.id.progressBar);
         noInternet = findViewById(R.id.noInternet);
+        tawkImg = findViewById(R.id.tawk_img);
+
+
+
+try {
+
+    tawkImg.setOnClickListener(new View.OnClickListener() {
+                                   @Override
+                                   public void onClick(View v) {
+                                       Intent i = new Intent(MainActivity.this,TawkActivity.class);
+                                       startActivity(i);
+
+                                   }
+                               }
+
+
+    );
+
+}catch (Exception e) {
+    Log.e("No service found", e.toString());
+    //At the level Exception Class handle the error in Exception Table
+    // Exception Create That Error  Object and throw it
+    //E.g: FileNotFoundException ,etc
+    e.printStackTrace();
+}
 
 
 
@@ -166,7 +194,7 @@ public class MainActivity extends AppCompatActivity {
         if (wifi.isConnected()|| mobile.isConnected()){
             webView.setVisibility(View.VISIBLE);
             noInternet.setVisibility(View.INVISIBLE);
-            webView.loadUrl("url");
+            webView.loadUrl(url);
         }else{
             webView.setVisibility(View.INVISIBLE);
             noInternet.setVisibility(View.VISIBLE);
