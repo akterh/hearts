@@ -2,4 +2,7 @@
     <string name="app_name">Hearts</string>
     <string name="spalshDesc">splash screen image</string>
     <string name="Relod"> No Internet</string>
+    <string name="dialogForUrl">You will be redirected to Other Site.</string>
+    <string name="quit"> Really Quit this site?</string>
+    <string name="yes">Yes</string>
 </resources>

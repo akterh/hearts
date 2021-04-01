@@ -8,6 +8,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import android.Manifest;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 
 import android.content.DialogInterface;
@@ -31,6 +32,8 @@ import android.webkit.WebViewClient;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.Toast;
+
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
@@ -61,28 +64,18 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-try {
 
-    tawkImg.setOnClickListener(new View.OnClickListener() {
-                                   @Override
-                                   public void onClick(View v) {
-                                       Intent i = new Intent(MainActivity.this,TawkActivity.class);
-                                       startActivity(i);
+        tawkImg.setOnClickListener(new View.OnClickListener() {
+                                       @Override
+                                       public void onClick(View v) {
+                                           Intent i = new Intent(MainActivity.this,TawkActivity.class);
+                                           startActivity(i);
 
+                                       }
                                    }
-                               }
 
 
-    );
-
-}catch (Exception e) {
-    Log.e("No service found", e.toString());
-    //At the level Exception Class handle the error in Exception Table
-    // Exception Create That Error  Object and throw it
-    //E.g: FileNotFoundException ,etc
-    e.printStackTrace();
-}
-
+        );
 
 
 
@@ -103,23 +96,29 @@ try {
         webView.getSettings().setDomStorageEnabled(true);
         webView.setWebViewClient(new myWebViewClient()
                                  {
+
                                      @Override
-                                     public boolean shouldOverrideUrlLoading(WebView webView, String url) {
-                                         Uri targetUrl = Uri.parse(url);
-                                         if (!targetUrl.equals(url)) {
-                                             // The WebView is trying to load a URL outside the specified domain,
-                                             // override and ignore this request for security.
-                                             Log.d(TAG, "Blocking request to " + url);
+                                     public boolean shouldOverrideUrlLoading(final WebView view, String url) {
 
-                                             // Reload home page
+
+                                         if (url.contains("hearts.com")) {
                                              webView.loadUrl(url);
-                                             return true;
-                                         }
+                                         } else {
+                                             webView.stopLoading();
+                                              Toast.makeText(getApplicationContext(), "You Will not be redirected", Toast.LENGTH_LONG).show();
 
-                                         return false;
+                                         }
+                                         return true;
+
+
+
                                      }
+
                                  }
 
+
+
+                         
         );
         webView.setWebChromeClient(new WebChromeClient()
 
