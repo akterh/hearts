@@ -1,5 +1,5 @@
 package com.hearts.customer;
-import com.mesibo.api.Mesibo;
+
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
@@ -8,37 +8,45 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import android.Manifest;
 
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
+
 import android.content.Context;
 
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.ConnectivityManager;
+
 import android.net.NetworkInfo;
+
 
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
-import android.util.Log;
+
 import android.view.View;
 import android.webkit.GeolocationPermissions;
 import android.webkit.WebChromeClient;
 
-import android.webkit.WebResourceRequest;
+
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.Toast;
+import android.widget.TextView;
+
+
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
 
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
 public class MainActivity extends AppCompatActivity {
-    private ImageView tawkImg;
+    private TextView back;
     private WebView webView;
     private SwipeRefreshLayout swipe;
     private ProgressBar progress;
@@ -47,6 +55,10 @@ public class MainActivity extends AppCompatActivity {
     private Context context;
     private static final String TAG = "SingleDomain";
     String url ="https://hearts.com.bd";
+
+
+    public MainActivity() throws MalformedURLException {
+    }
 
     @RequiresApi(api = Build.VERSION_CODES.P)
 
@@ -60,16 +72,16 @@ public class MainActivity extends AppCompatActivity {
         swipe = findViewById(R.id.swipe);
         progress= findViewById(R.id.progressBar);
         noInternet = findViewById(R.id.noInternet);
-        tawkImg = findViewById(R.id.tawk_img);
+        back = findViewById(R.id.btn_back);
 
 
 
 
-        tawkImg.setOnClickListener(new View.OnClickListener() {
+        back.setOnClickListener(new View.OnClickListener() {
                                        @Override
                                        public void onClick(View v) {
-                                           Intent i = new Intent(MainActivity.this,TawkActivity.class);
-                                           startActivity(i);
+                                         webView.loadUrl(url);
+                                         back.setVisibility(View.INVISIBLE);
 
                                        }
                                    }
@@ -88,6 +100,9 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+
+
+
         webView.getSettings().setGeolocationEnabled(true);
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setAllowFileAccess(true);
@@ -101,52 +116,54 @@ public class MainActivity extends AppCompatActivity {
                                      public boolean shouldOverrideUrlLoading(final WebView view, String url) {
 
 
-if (!url.contains("hearts.com")){
-
-    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-    builder.setIcon(android.R.drawable.ic_dialog_alert);
-    builder.setTitle("Go to this url?");
-    builder.setPositiveButton("Yes",
-            new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int id) {
 
 
-                    if(url.contains("https://")) {
-                        view.loadUrl(url);
+                                         if (!url.contains()){
+
+                                                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                                                    builder.setIcon(R.drawable.ic_dialog_alert);
+                                                    builder.setTitle("Will you go to this url?");
+                                                    builder.setPositiveButton("Yes",
+                                                            new DialogInterface.OnClickListener() {
+                                                                @Override
+                                                                public void onClick(DialogInterface dialog, int id) {
+                                                                    back.setVisibility(View.VISIBLE);
 
 
-//                                                             Toast.makeText(this,"url is not correct",Toast.LENGTH_SHORT).show();
-                        //flag=false;
+                                                                    if(url.contains("https://")) {
 
-                    }
+                                                                        view.loadUrl(url);
 
+                                                                        //flag=false;
 
-                    // it will load in app
-//                                                             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url)); //it will load in browser
-//                                                             startActivity(intent);
-                    //flag=true;
-
-                }
-            });
-    builder.setNeutralButton("No", new DialogInterface.OnClickListener()
-    {
-        public void onClick(DialogInterface dialog, int which)
-        {
-            webView.stopLoading();
-        }
-    });
-    AlertDialog alert = builder.create();
-
-    alert.show();
+                                                                    }
 
 
+                                                                    // it will load in app
+                                                //                                                             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url)); //it will load in browser
+                                                //                                                             startActivity(intent);
+                                                                    //flag=true;
+
+                                                                }
+                                                            });
+                                                    builder.setNeutralButton("No", new DialogInterface.OnClickListener()
+                                                    {
+                                                        public void onClick(DialogInterface dialog, int which)
+                                                        {
+                                                            webView.stopLoading();
+                                                        }
+                                                    });
+                                                    AlertDialog alert = builder.create();
+
+                                                    alert.show();
 
 
 
-}else {
-    webView.loadUrl(url);
-}
+
+
+                                                }else {
+                                                    webView.loadUrl(url);
+                                                }
 
 
 
@@ -204,6 +221,7 @@ if (!url.contains("hearts.com")){
     @Override
     public void onBackPressed() {
         if (webView.canGoBack()) {
+            back.setVisibility(View.INVISIBLE);
 
 
             webView.goBack();
@@ -268,9 +286,12 @@ if (!url.contains("hearts.com")){
             checkInternet();
         }
         else {
-            EasyPermissions.requestPermissions(this, "Please grant the location permission", REQUEST_LOCATION_PERMISSION, perms);
+            EasyPermissions.requestPermissions(this, "Please grant the location permis" +
+                    "sion", REQUEST_LOCATION_PERMISSION, perms);
         }
     }
+
+
 
 
 

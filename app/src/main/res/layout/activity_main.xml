@@ -47,15 +47,22 @@
 
    </LinearLayout>
 
-   <ImageView
-       android:id="@+id/tawk_img"
-       android:layout_width="100dp"
-       android:layout_height="100dp"
-      android:layout_alignParentBottom="true"
-      android:layout_alignParentEnd="true"
-      android:src="@drawable/tawk_sitelogo"
-      android:layout_marginBottom="32dp"
-      android:layout_marginRight="12dp"/>
+   <TextView
+       android:id="@+id/btn_back"
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       android:layout_alignParentEnd="true"
+       android:layout_alignParentBottom="true"
+       android:layout_marginRight="0dp"
+       android:layout_marginBottom="0dp"
+       android:background="@color/hearts_back"
+       android:gravity="center"
+       android:paddingTop="12dp"
+       android:paddingBottom="12dp"
+       android:text="Back To Hearts"
+       android:textColor="@color/white"
+       android:textSize="20sp"
+       android:visibility="invisible"/>
 
 
 
