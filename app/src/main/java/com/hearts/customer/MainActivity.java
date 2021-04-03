@@ -101,13 +101,63 @@ public class MainActivity extends AppCompatActivity {
                                      public boolean shouldOverrideUrlLoading(final WebView view, String url) {
 
 
-                                         if (url.contains("hearts.com")) {
-                                             webView.loadUrl(url);
-                                         } else {
-                                             webView.stopLoading();
-                                              Toast.makeText(getApplicationContext(), "You Will not be redirected", Toast.LENGTH_LONG).show();
+if (!url.contains("hearts.com")){
 
-                                         }
+    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+    builder.setIcon(android.R.drawable.ic_dialog_alert);
+    builder.setTitle("Go to this url?");
+    builder.setPositiveButton("Yes",
+            new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int id) {
+
+
+                    if(url.contains("https://")) {
+                        view.loadUrl(url);
+
+
+//                                                             Toast.makeText(this,"url is not correct",Toast.LENGTH_SHORT).show();
+                        //flag=false;
+
+                    }
+
+
+                    // it will load in app
+//                                                             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url)); //it will load in browser
+//                                                             startActivity(intent);
+                    //flag=true;
+
+                }
+            });
+    builder.setNeutralButton("No", new DialogInterface.OnClickListener()
+    {
+        public void onClick(DialogInterface dialog, int which)
+        {
+            webView.stopLoading();
+        }
+    });
+    AlertDialog alert = builder.create();
+
+    alert.show();
+
+
+
+
+
+}else {
+    webView.loadUrl(url);
+}
+
+
+
+//
+//                                         if (url.contains("hearts.com")) {
+//                                             webView.loadUrl(url);
+//                                         } else {
+//                                             webView.stopLoading();
+//                                              Toast.makeText(getApplicationContext(), "You Will not be redirected", Toast.LENGTH_LONG).show();
+//
+//                                         }
                                          return true;
 
 
@@ -162,8 +212,8 @@ public class MainActivity extends AppCompatActivity {
             new AlertDialog.Builder(this)
                     .setTitle("Really Exit?")
                     .setMessage("Are you sure you want to exit?")
-                    .setNegativeButton(android.R.string.no, null)
-                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             MainActivity.super.onBackPressed();
