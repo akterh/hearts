@@ -23,6 +23,7 @@ import android.os.Build;
 import android.os.Bundle;
 
 
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.webkit.GeolocationPermissions;
 import android.webkit.WebChromeClient;
@@ -40,6 +41,7 @@ import android.widget.TextView;
 
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 import pub.devrel.easypermissions.AfterPermissionGranted;
@@ -55,10 +57,10 @@ public class MainActivity extends AppCompatActivity {
     private Context context;
     private static final String TAG = "SingleDomain";
     String url ="https://hearts.com.bd";
+    public String currentUrl;
 
 
-    public MainActivity() throws MalformedURLException {
-    }
+
 
     @RequiresApi(api = Build.VERSION_CODES.P)
 
@@ -80,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
         back.setOnClickListener(new View.OnClickListener() {
                                        @Override
                                        public void onClick(View v) {
-                                         webView.loadUrl(url);
+                                           webView.loadUrl(url);
                                          back.setVisibility(View.INVISIBLE);
 
                                        }
@@ -114,11 +116,16 @@ public class MainActivity extends AppCompatActivity {
 
                                      @Override
                                      public boolean shouldOverrideUrlLoading(final WebView view, String url) {
+                                         currentUrl = view.getUrl();
+//                                         URL myUrl = null;
+//                                         try {
+//                                             myUrl = new URL(currentUrl);
+//                                         } catch (MalformedURLException e) {
+//                                             e.printStackTrace();
+//                                         }
 
 
-
-
-                                         if (!url.contains()){
+                                         if (currentUrl.contains("hearts") && !url.contains("hearts")){
 
                                                     AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                                                     builder.setIcon(R.drawable.ic_dialog_alert);
@@ -130,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
                                                                     back.setVisibility(View.VISIBLE);
 
 
-                                                                    if(url.contains("https://")) {
+                                                                    if(url.contains("https://") || url.contains("http://")) {
 
                                                                         view.loadUrl(url);
 
@@ -218,10 +225,11 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
     @Override
     public void onBackPressed() {
         if (webView.canGoBack()) {
-            back.setVisibility(View.INVISIBLE);
+            back.setVisibility(View.VISIBLE);
 
 
             webView.goBack();
@@ -258,6 +266,7 @@ public class MainActivity extends AppCompatActivity {
         ConnectivityManager connectivityManager = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo wifi = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
         NetworkInfo mobile = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+
         if (wifi.isConnected()|| mobile.isConnected()){
             webView.setVisibility(View.VISIBLE);
             noInternet.setVisibility(View.INVISIBLE);
