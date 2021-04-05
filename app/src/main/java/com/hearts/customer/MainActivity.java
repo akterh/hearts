@@ -1,63 +1,55 @@
 package com.hearts.customer;
 
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-
 import android.Manifest;
-
 import android.app.AlertDialog;
-
 import android.content.Context;
-
 import android.content.DialogInterface;
-import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
-
 import android.net.NetworkInfo;
-
-
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-
-
-import android.util.DisplayMetrics;
 import android.view.View;
 import android.webkit.GeolocationPermissions;
 import android.webkit.WebChromeClient;
-
-
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
-
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.util.ArrayList;
 
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
 public class MainActivity extends AppCompatActivity {
+  ;
     private TextView back;
     private WebView webView;
     private SwipeRefreshLayout swipe;
     private ProgressBar progress;
     private LinearLayout noInternet;
-    private final int REQUEST_LOCATION_PERMISSION = 1;
     private Context context;
     private static final String TAG = "SingleDomain";
     String url ="https://hearts.com.bd";
     public String currentUrl;
+    ArrayList<String> permissions = new ArrayList<>();
+    ArrayList<String> permissionsToRequest;
+    final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 101;
+    public final static int ALL_PERMISSIONS_RESULT = 102;
+    ArrayList<String> permissionsRejected = new ArrayList<>();
+    boolean canGetLocation = true;
+    String type="";
+
+
 
 
 
@@ -179,7 +171,8 @@ public class MainActivity extends AppCompatActivity {
 //                                             webView.loadUrl(url);
 //                                         } else {
 //                                             webView.stopLoading();
-//                                              Toast.makeText(getApplicationContext(), "You Will not be redirected", Toast.LENGTH_LONG).show();
+//                                              Toast.makeText(getApplicationContext(), "You Will no
+//                                              t be redirected", Toast.LENGTH_LONG).show();
 //
 //                                         }
                                          return true;
@@ -198,7 +191,8 @@ public class MainActivity extends AppCompatActivity {
 
 
                                    {
-                                       public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback callback) {
+                                       public void onGeolocationPermissionsShowPrompt(String origin,
+                                                                                      GeolocationPermissions.Callback callback) {
                                            callback.invoke(origin, true, false);
                                        }
                                    }
@@ -208,9 +202,9 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-
+        checkPer();
         checkInternet();
-        requestLocationPermission();
+
 
 
 
@@ -229,7 +223,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         if (webView.canGoBack()) {
-            back.setVisibility(View.VISIBLE);
+            back.setVisibility(View.INVISIBLE);
 
 
             webView.goBack();
@@ -280,24 +274,106 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+    public void checkPer() {
+        permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        permissions.add(Manifest.permission.READ_EXTERNAL_STORAGE);
+        permissions.add(Manifest.permission.CAMERA);
+        permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
+        permissionsToRequest = findUnAskedPermissions(permissions);
+
+        // check permissions
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (permissionsToRequest.size() > 0) {
+                requestPermissions(permissionsToRequest.toArray(new String[permissionsToRequest.size()]),
+                        ALL_PERMISSIONS_RESULT);
+                //Log.d(TAG, "Permission requests");
+                canGetLocation = false;
+            }
+        }
+    }
+
+    private ArrayList findUnAskedPermissions(ArrayList<String> wanted) {
+        ArrayList result = new ArrayList();
+
+        for (String perm : wanted) {
+            if (!hasPermission(perm)) {
+                result.add(perm);
+            }
+        }
+
+        return result;
+    }
+
+    private boolean hasPermission(String permission) {
+        if (canAskPermission()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                return (checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED);
+            }
+        }
+        return true;
+    }
+
+    private boolean canAskPermission() {
+        return (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1);
+    }
+
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        boolean canUseExternalStorage = false;
 
-        // Forward results to EasyPermissions
-        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
+        switch (requestCode) {
+            case ALL_PERMISSIONS_RESULT:
+                try {
+                    //Log.d(TAG, "onRequestPermissionsResult");
+                    for (String perms : permissionsToRequest) {
+                        if (!hasPermission(perms)) {
+                            permissionsRejected.add(perms);
+                        }
+                    }
+
+                    if (permissionsRejected.size() > 0) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            if (shouldShowRequestPermissionRationale(permissionsRejected.get(0))) {
+                                showMessageOKCancel("These permissions are mandatory for the application. Please allow access.",
+                                        new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                                    requestPermissions(permissionsRejected.toArray(
+                                                            new String[permissionsRejected.size()]), ALL_PERMISSIONS_RESULT);
+                                                }
+                                            }
+                                        });
+                                return;
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+
+                }
+                break;
+            case MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    canUseExternalStorage = true;
+                }
+                if (!canUseExternalStorage) {
+                    Toast.makeText(MainActivity.this, getResources().getString(R.string.cannot_use_save_permission), Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
     }
 
-    @AfterPermissionGranted(REQUEST_LOCATION_PERMISSION)
-    public void requestLocationPermission() {
-        String[] perms = {Manifest.permission.ACCESS_FINE_LOCATION};
-        if(EasyPermissions.hasPermissions(this, perms)) {
-            checkInternet();
-        }
-        else {
-            EasyPermissions.requestPermissions(this, "Please grant the location permis" +
-                    "sion", REQUEST_LOCATION_PERMISSION, perms);
-        }
+    private void showMessageOKCancel(String message, DialogInterface.OnClickListener okListener) {
+        new AlertDialog.Builder(MainActivity.this)
+                .setMessage(message)
+                .setPositiveButton("OK", okListener)
+                .setNegativeButton("cancel", null)
+                .create()
+                .show();
+    }
     }
 
 
@@ -306,4 +382,4 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-}
+

@@ -5,4 +5,5 @@
     <string name="dialogForUrl">You will be redirected to Other Site.</string>
     <string name="quit"> Really Quit this site?</string>
     <string name="yes">Yes</string>
+    <string name="cannot_use_save_permission">You can\'t use save permission</string>
 </resources>
