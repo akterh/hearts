@@ -6,4 +6,8 @@
     <string name="quit"> Really Quit this site?</string>
     <string name="yes">Yes</string>
     <string name="cannot_use_save_permission">You can\'t use save permission</string>
+    <string name="permission_camera_rationale">hahahha</string>
+    <string name="ok">ok</string>
+    <string name="dl_downloading">downloading</string>
+    <string name="dl_downloading2">Downloading</string>
 </resources>

@@ -4,41 +4,62 @@ package com.hearts.customer;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import android.Manifest;
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.DownloadManager;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
+import android.webkit.CookieManager;
+import android.webkit.DownloadListener;
 import android.webkit.GeolocationPermissions;
+import android.webkit.URLUtil;
+import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.snackbar.Snackbar;
+
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
+import pub.devrel.easypermissions.PermissionRequest;
 
 public class MainActivity extends AppCompatActivity {
-  ;
     private TextView back;
     private WebView webView;
     private SwipeRefreshLayout swipe;
     private ProgressBar progress;
     private LinearLayout noInternet;
     private Context context;
-    private static final String TAG = "SingleDomain";
     String url ="https://hearts.com.bd";
     public String currentUrl;
     ArrayList<String> permissions = new ArrayList<>();
@@ -48,12 +69,61 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<String> permissionsRejected = new ArrayList<>();
     boolean canGetLocation = true;
     String type="";
+    private final static int file_perm = 2;
+
+
+
+
+
+    private static final String TAG = MainActivity.class.getSimpleName();
+    private String mCM;
+    private ValueCallback<Uri> mUM;
+    private ValueCallback<Uri[]> mUMA;
+    private final static int FCR=1;
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+        if (Build.VERSION.SDK_INT >= 21) {
+            Uri[] results = null;
+            //Check if response is positive
+            if (resultCode == Activity.RESULT_OK) {
+                if (requestCode == FCR) {
+                    if (null == mUMA) {
+                        return;
+                    }
+                    if (intent == null) {
+                        //Capture Photo if no image available
+                        if (mCM != null) {
+                            results = new Uri[]{Uri.parse(mCM)};
+                        }
+                    } else {
+                        String dataString = intent.getDataString();
+                        if (dataString != null) {
+                            results = new Uri[]{Uri.parse(dataString)};
+                        }
+                    }
+                }
+            }
+            mUMA.onReceiveValue(results);
+            mUMA = null;
+        } else {
+            if (requestCode == FCR) {
+                if (null == mUM) return;
+                Uri result = intent == null || resultCode != RESULT_OK ? null : intent.getData();
+                mUM.onReceiveValue(result);
+                mUM = null;
+            }
+        }
+    }
 
 
 
 
 
 
+
+    @SuppressLint("SetJavaScriptEnabled")
     @RequiresApi(api = Build.VERSION_CODES.P)
 
 
@@ -103,6 +173,7 @@ public class MainActivity extends AppCompatActivity {
         webView.getSettings().getAllowFileAccessFromFileURLs();
         webView.getSettings().setAllowContentAccess(true);
         webView.getSettings().setDomStorageEnabled(true);
+        webView.getSettings().setMediaPlaybackRequiresUserGesture(false);
         webView.setWebViewClient(new myWebViewClient()
                                  {
 
@@ -134,6 +205,9 @@ public class MainActivity extends AppCompatActivity {
                                                                         view.loadUrl(url);
 
                                                                         //flag=false;
+
+
+//
 
                                                                     }
 
@@ -195,9 +269,87 @@ public class MainActivity extends AppCompatActivity {
                                                                                       GeolocationPermissions.Callback callback) {
                                            callback.invoke(origin, true, false);
                                        }
+
+                                       public boolean onShowFileChooser(
+                                               WebView webView, ValueCallback<Uri[]> filePathCallback,
+                                               WebChromeClient.FileChooserParams fileChooserParams){
+                                           if(mUMA != null){
+                                               mUMA.onReceiveValue(null);
+                                           }
+                                           mUMA = filePathCallback;
+                                           Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                                           if(takePictureIntent.resolveActivity(MainActivity.this.getPackageManager()) != null){
+                                               File photoFile = null;
+                                               try{
+                                                   photoFile = createImageFile();
+                                                   takePictureIntent.putExtra("PhotoPath", mCM);
+                                               }catch(IOException ex){
+                                                   Log.e(TAG, "Image file creation failed", ex);
+                                               }
+                                               if(photoFile != null){
+                                                   mCM = "file:" + photoFile.getAbsolutePath();
+                                                   takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
+                                               }else{
+                                                   takePictureIntent = null;
+                                               }
+                                           }
+                                           Intent contentSelectionIntent = new Intent(Intent.ACTION_GET_CONTENT);
+                                           contentSelectionIntent.addCategory(Intent.CATEGORY_OPENABLE);
+                                           contentSelectionIntent.setType("*/*");
+                                           Intent[] intentArray;
+                                           if(takePictureIntent != null){
+                                               intentArray = new Intent[]{takePictureIntent};
+                                           }else{
+                                               intentArray = new Intent[0];
+                                           }
+
+                                           Intent chooserIntent = new Intent(Intent.ACTION_CHOOSER);
+                                           chooserIntent.putExtra(Intent.EXTRA_INTENT, contentSelectionIntent);
+                                           chooserIntent.putExtra(Intent.EXTRA_TITLE, "Image Chooser");
+                                           chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, intentArray);
+                                           startActivityForResult(chooserIntent, FCR);
+                                           return true;
+                                       }
+
+
+
+
+
+
+
                                    }
 
+
+
         );
+
+
+
+       webView.setDownloadListener(new DownloadListener() {
+            @Override
+            public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimeType, long contentLength) {
+
+                if(!check_permission(2)){
+                    ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, file_perm);
+                }else {
+                    DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
+
+                    request.setMimeType(mimeType);
+                    String cookies = CookieManager.getInstance().getCookie(url);
+                    request.addRequestHeader("cookie", cookies);
+                    request.addRequestHeader("User-Agent", userAgent);
+                    request.setDescription(getString(R.string.dl_downloading));
+                    request.setTitle(URLUtil.guessFileName(url, contentDisposition, mimeType));
+                    request.allowScanningByMediaScanner();
+                    request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+                    request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, URLUtil.guessFileName(url, contentDisposition, mimeType));
+                    DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+                    assert dm != null;
+                    dm.enqueue(request);
+                    Toast.makeText(getApplicationContext(), getString(R.string.dl_downloading2), Toast.LENGTH_LONG).show();
+                }
+            }
+        });
 
 
 
@@ -374,7 +526,37 @@ public class MainActivity extends AppCompatActivity {
                 .create()
                 .show();
     }
+
+
+
+    private File createImageFile() throws IOException{
+        @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "img_"+timeStamp+"_";
+        File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        return File.createTempFile(imageFileName,".jpg",storageDir);
     }
+
+    public boolean check_permission(int permission){
+        switch(permission){
+            case 1:
+                return ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+
+            case 2:
+                return ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+
+            case 3:
+                return ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
+
+        }
+        return false;
+    }
+
+
+
+
+
+
+}
 
 
 
