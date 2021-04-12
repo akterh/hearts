@@ -45,6 +45,8 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -115,6 +117,8 @@ public class MainActivity extends AppCompatActivity {
                 mUM = null;
             }
         }
+
+        checkMediaPer();
     }
 
 
@@ -145,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
                                        @Override
                                        public void onClick(View v) {
                                            webView.loadUrl(url);
-                                         back.setVisibility(View.INVISIBLE);
+                                         back.setVisibility(View.GONE);
 
                                        }
                                    }
@@ -175,17 +179,28 @@ public class MainActivity extends AppCompatActivity {
         webView.getSettings().setDomStorageEnabled(true);
         webView.getSettings().setMediaPlaybackRequiresUserGesture(false);
         webView.setWebViewClient(new myWebViewClient()
+
+
+
+
+
+
+
                                  {
+
+
+
+
 
                                      @Override
                                      public boolean shouldOverrideUrlLoading(final WebView view, String url) {
                                          currentUrl = view.getUrl();
-//                                         URL myUrl = null;
-//                                         try {
-//                                             myUrl = new URL(currentUrl);
-//                                         } catch (MalformedURLException e) {
-//                                             e.printStackTrace();
-//                                         }
+                                         URL myUrl = null;
+                                         try {
+                                             myUrl = new URL(currentUrl);
+                                         } catch (MalformedURLException e) {
+                                             e.printStackTrace();
+                                         }
 
 
                                          if (currentUrl.contains("hearts") && !url.contains("hearts")){
@@ -200,7 +215,7 @@ public class MainActivity extends AppCompatActivity {
                                                                     back.setVisibility(View.VISIBLE);
 
 
-                                                                    if(url.contains("https://") || url.contains("http://")) {
+                                                                    if(url.contains("https://") || url.contains("http://") || url.contains("www")) {
 
                                                                         view.loadUrl(url);
 
@@ -265,12 +280,15 @@ public class MainActivity extends AppCompatActivity {
 
 
                                    {
+
                                        public void onGeolocationPermissionsShowPrompt(String origin,
                                                                                       GeolocationPermissions.Callback callback) {
                                            callback.invoke(origin, true, false);
                                        }
 
                                        public boolean onShowFileChooser(
+
+
                                                WebView webView, ValueCallback<Uri[]> filePathCallback,
                                                WebChromeClient.FileChooserParams fileChooserParams){
                                            if(mUMA != null){
@@ -354,7 +372,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        checkPer();
+        checkLocationPer();
         checkInternet();
 
 
@@ -374,11 +392,19 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        try {
+            URL url2 = new URL(currentUrl);
+           String url3 = url2.getHost();
+            Log.d("back", url3);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+
+
         if (webView.canGoBack()) {
-            back.setVisibility(View.INVISIBLE);
-
-
             webView.goBack();
+
+
         }
         else {
             new AlertDialog.Builder(this)
@@ -426,11 +452,28 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    public void checkPer() {
+    public void checkLocationPer() {
+
+        permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
+        permissionsToRequest = findUnAskedPermissions(permissions);
+
+        // check permissions
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (permissionsToRequest.size() > 0) {
+                requestPermissions(permissionsToRequest.toArray(new String[permissionsToRequest.size()]),
+                        ALL_PERMISSIONS_RESULT);
+                //Log.d(TAG, "Permission requests");
+                canGetLocation = false;
+            }
+        }
+    }
+
+
+
+    public void checkMediaPer() {
+        permissions.add(Manifest.permission.CAMERA);
         permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
         permissions.add(Manifest.permission.READ_EXTERNAL_STORAGE);
-        permissions.add(Manifest.permission.CAMERA);
-        permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
         permissionsToRequest = findUnAskedPermissions(permissions);
 
         // check permissions
@@ -533,6 +576,7 @@ public class MainActivity extends AppCompatActivity {
         @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "img_"+timeStamp+"_";
         File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        checkMediaPer();
         return File.createTempFile(imageFileName,".jpg",storageDir);
     }
 
